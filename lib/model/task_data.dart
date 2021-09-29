@@ -11,9 +11,7 @@ class TaskData extends ChangeNotifier {
   // UnmodifiableListView<Task> get gettasks => tasks;
   // UnmodifiableListView
 
-  int get taskCounter {
-    return tasks.length;
-  }
+  int get taskCounter => tasks.length;
 
   void addTask(String newTitle) {
     final task = Task(name: newTitle);
