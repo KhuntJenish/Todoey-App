@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class Tasktile extends StatelessWidget {
   final bool? isChecked;
   final Function? checkboxCallBack;
-  final Function? onLongPressCallBack;
+  final Function()? onLongPressCallBack;
   final String? taskTitle;
   Tasktile({
     this.taskTitle,
@@ -17,7 +17,7 @@ class Tasktile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      onLongPress: () => onLongPressCallBack,
+      onLongPress: onLongPressCallBack,
       title: Text(
         taskTitle!,
         style: TextStyle(
@@ -26,8 +26,8 @@ class Tasktile extends StatelessWidget {
       trailing: Checkbox(
           activeColor: Colors.lightBlue,
           value: isChecked,
-          onChanged: (newval) {
-            checkboxCallBack!(newval);
+          onChanged: (_) {
+            checkboxCallBack!();
           }),
     );
   }
