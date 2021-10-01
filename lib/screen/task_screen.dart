@@ -1,13 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:todoapp/db/database_provider.dart';
 // import 'package:todoapp/model/task.dart';
 import 'package:todoapp/model/task_data.dart';
 import 'package:todoapp/screen/add_task_screen.dart';
 import 'package:todoapp/widgets/task_list.dart';
 
-class TaskScreen extends StatelessWidget {
+class TaskScreen extends StatefulWidget {
+  @override
+  State<TaskScreen> createState() => _TaskScreenState();
+}
+
+class _TaskScreenState extends State<TaskScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    // Provider.of<TaskData>(context).tasks.addAll()
+  }
+
   @override
   Widget build(BuildContext context) {
+    DatabaseProvider.db.getRecord(context);
     return Scaffold(
       backgroundColor: Colors.lightBlue,
       floatingActionButton: FloatingActionButton(

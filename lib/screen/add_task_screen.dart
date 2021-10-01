@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:todoapp/db/database_provider.dart';
 import 'package:todoapp/model/task_data.dart';
 
 class AddTaskScreen extends StatelessWidget {
@@ -43,9 +44,10 @@ class AddTaskScreen extends StatelessWidget {
                 "Add",
                 style: TextStyle(color: Colors.white),
               ),
-              onPressed: () {
+              onPressed: () async {
                 Provider.of<TaskData>(context, listen: false)
                     .addTask(newTaskTitle!);
+                await DatabaseProvider.db.getRecord(context);
                 Navigator.pop(context);
               },
             )
