@@ -14,11 +14,38 @@ class TaskList extends StatelessWidget {
             return Tasktile(
               taskTitle: task.name,
               isChecked: task.isDone,
-              checkboxCallBack: () {
-                taskData.updateTask(task);
+              checkboxCallBack: (val) {
+                taskData.checkbox(task, val);
               },
               onLongPressCallBack: () {
                 taskData.deleteTask(task);
+              },
+              onTapCallBack: () {
+                String? updatetask;
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text("Update Record"),
+                        content: TextFormField(
+                          autofocus: true,
+                          initialValue: task.name,
+                          onChanged: (val) {
+                            updatetask = val;
+                          },
+                        ),
+                        actions: [
+                          ElevatedButton(
+                            onPressed: () {
+                              taskData.updateTask(task.id!, updatetask!, index);
+                              Navigator.pop(context);
+                            },
+                            child: Text("update"),
+                          ),
+                        ],
+                      );
+                    });
+                // taskData.updateTask(task);
               },
             );
           },

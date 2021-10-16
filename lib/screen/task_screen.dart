@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:todoapp/db/database_provider.dart';
-// import 'package:todoapp/model/task.dart';
 import 'package:todoapp/model/task_data.dart';
 import 'package:todoapp/screen/add_task_screen.dart';
 import 'package:todoapp/widgets/task_list.dart';
@@ -16,21 +14,23 @@ class _TaskScreenState extends State<TaskScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
-    // Provider.of<TaskData>(context).tasks.addAll()
+    Provider.of<TaskData>(context).timeController.text = '';
+    Provider.of<TaskData>(context, listen: false).getDataFromDatabase();
   }
 
   @override
   Widget build(BuildContext context) {
-    DatabaseProvider.db.getRecord(context);
     return Scaffold(
       backgroundColor: Colors.lightBlue,
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.lightBlue,
-        onPressed: () {
-          showModalBottomSheet(
+        onPressed: () async {
+          await showModalBottomSheet(
+            isScrollControlled: true,
             context: context,
-            builder: (context) => AddTaskScreen(),
+            builder: (context) => Wrap(children: [
+              AddTaskScreen(),
+            ]),
           );
         },
         child: Icon(Icons.add),

@@ -4,7 +4,7 @@ class Task {
   int? id;
   String? name;
   bool? isDone;
-  Task({this.name, this.isDone = false, this.id});
+  Task({this.name, this.isDone = false});
 
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{

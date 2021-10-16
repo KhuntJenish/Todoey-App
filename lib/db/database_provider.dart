@@ -18,7 +18,7 @@ class DatabaseProvider {
   Database? _database;
 
   Future<Database> get database async {
-    print("Database getter called.");
+    // print("Database getter called.");
 
     if (_database != null) {
       // print()
@@ -48,25 +48,23 @@ class DatabaseProvider {
     });
   }
 
-  Future<void> getRecord(BuildContext context) async {
-    print('getRecord');
+  Future<List<Task>> getRecord() async {
+    // print('getRecord');
     final db = await database;
 
-    var tasks = await db.query(TABLE_NAME);
-    print(tasks);
+    var task = await db.query(TABLE_NAME);
+    print(task);
 
     List<Task> taskList = [];
-    tasks.forEach((element) {
+    task.forEach((element) {
       Task task = Task.fromMap(element);
       taskList.add(task);
-
-      // print(Provider.of<TaskData>(context, listen: false).tasks[i]);
-      // i++;
     });
-    Provider.of<TaskData>(context, listen: false).tasks.clear();
-    Provider.of<TaskData>(context, listen: false).tasks.addAll(taskList);
 
-    // return taskList;
+    // Provider.of<TaskData>(context, listen: false).gettasks.clear();
+    // Provider.of<TaskData>(context, listen: false).gettasks.addAll(taskList);
+
+    return taskList;
   }
 
   Future<Task> insert(Task task) async {
@@ -85,13 +83,25 @@ class DatabaseProvider {
     );
   }
 
-  Future<int> update(Task task) async {
+  Future updatetname(int id, String newname) async {
     final db = await database;
-    return await db.update(
+    await db.update(
       TABLE_NAME,
-      task.toMap(),
+      // task.toMap(),
+      {COLUMN_TNAME: newname},
       where: "$COLUMN_ID = ?",
-      whereArgs: [task.id],
+      whereArgs: [id],
+    );
+  }
+
+  Future updatecheckbox(int id, bool newcheck) async {
+    final db = await database;
+    await db.update(
+      TABLE_NAME,
+      // task.toMap(),
+      {COLUMN_TCHECK: newcheck ? 1 : 0},
+      where: "$COLUMN_ID = ?",
+      whereArgs: [id],
     );
   }
 }

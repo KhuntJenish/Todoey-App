@@ -1,6 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:todoapp/db/database_provider.dart';
 import 'package:todoapp/model/task_data.dart';
 
 class AddTaskScreen extends StatelessWidget {
@@ -8,8 +8,10 @@ class AddTaskScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     String? newTaskTitle;
     return Container(
+      height: MediaQuery.of(context).size.height * 0.64,
       color: Color(0xff757575),
       child: Container(
+        // height: MediaQuery.of(context).size.height * 0.8,
         padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -19,7 +21,8 @@ class AddTaskScreen extends StatelessWidget {
           ),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.max,
+          // crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
               "Add Task",
@@ -32,9 +35,42 @@ class AddTaskScreen extends StatelessWidget {
             TextField(
               autofocus: true,
               textAlign: TextAlign.center,
+              textInputAction: TextInputAction.next,
               onChanged: (newval) {
                 newTaskTitle = newval;
               },
+            ),
+            Container(
+              padding: EdgeInsets.all(10),
+              child: Row(
+                children: [
+                  Text('Task Time : '),
+                  Expanded(
+                    child: Container(
+                      height: 40,
+                      margin: EdgeInsets.only(right: 170, left: 10, bottom: 10),
+                      child: TextFormField(
+                        onTap: () {
+                          Provider.of<TaskData>(context, listen: false)
+                              .selectTime(context);
+                        },
+                        readOnly: true,
+                        controller:
+                            Provider.of<TaskData>(context).timeController,
+                        // initialValue: Provider.of<TaskData>(context).time,
+                        decoration: InputDecoration(),
+                        // autofocus: true,
+                        textInputAction: TextInputAction.done,
+                        onFieldSubmitted: (a) {
+                          Navigator.pop(context);
+                        },
+                        textAlign: TextAlign.center,
+                        onChanged: (newval) {},
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             ElevatedButton(
               style: ButtonStyle(
@@ -47,7 +83,8 @@ class AddTaskScreen extends StatelessWidget {
               onPressed: () async {
                 Provider.of<TaskData>(context, listen: false)
                     .addTask(newTaskTitle!);
-                await DatabaseProvider.db.getRecord(context);
+                // Provider.of<TaskData>(context, listen: false)
+                //     .getDataFromDatabase();
                 Navigator.pop(context);
               },
             )
