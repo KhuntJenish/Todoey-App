@@ -1,9 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:path/path.dart';
-import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:todoapp/model/task.dart';
-import 'package:todoapp/model/task_data.dart';
 
 class DatabaseProvider {
   static const String TABLE_NAME = "t_table";
@@ -18,7 +15,7 @@ class DatabaseProvider {
   Database? _database;
 
   Future<Database> get database async {
-    // print("Database getter called.");
+    print("Database getter called.");
 
     if (_database != null) {
       // print()
@@ -31,18 +28,18 @@ class DatabaseProvider {
   }
 
   Future<Database> createDatabase() async {
-    String dbPath = await getDatabasesPath();
+    print("Creating a table.");
 
+    String dbPath = await getDatabasesPath();
+    print(dbPath);
     return await openDatabase(join(dbPath, "foodDB.db"), version: 1,
         onCreate: (Database database, int version) async {
-      print("Creating a table.");
-
       await database.execute(
         "CREATE TABLE $TABLE_NAME ("
         "$COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT,"
-        "$COLUMN_TNAME TEXT ,"
-        "$COLUMN_TCHECK INTEGER "
-        // "$COLUMN_TTIME DATETIME NOT NULL"
+        "$COLUMN_TNAME TEXT,"
+        "$COLUMN_TCHECK INTEGER,"
+        "$COLUMN_TTIME TEXT"
         ")",
       );
     });
@@ -83,12 +80,18 @@ class DatabaseProvider {
     );
   }
 
-  Future updatetname(int id, String newname) async {
+  clear() async {
+    final db = await database;
+    var query = 'delete from ${TABLE_NAME}';
+    await db.rawDelete(query);
+  }
+
+  Future updatetname(int id, String newname, String date) async {
     final db = await database;
     await db.update(
       TABLE_NAME,
       // task.toMap(),
-      {COLUMN_TNAME: newname},
+      {COLUMN_TNAME: newname, COLUMN_TTIME: date},
       where: "$COLUMN_ID = ?",
       whereArgs: [id],
     );

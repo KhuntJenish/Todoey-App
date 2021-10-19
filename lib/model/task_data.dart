@@ -12,24 +12,17 @@ import 'package:timezone/timezone.dart' as tz;
 import '../main.dart';
 
 class TaskData extends ChangeNotifier {
-  TextEditingController timeController = TextEditingController();
-  final List<Task> tasks = [
-    // Task(name: 'buy Daimond'),
-    // Task(name: 'buy Mik'),
-    // Task(name: 'buy Glosary'),
-  ];
-
-  // List<Task> get gettasks => tasks;
-  // UnmodifiableListView
+  final List<Task> tasks = [];
 
   int get taskCounter => tasks.length;
 
-  void addTask(String newTitle) {
-    final task = Task(name: newTitle);
+  Future<void> addTask(String newTitle, String time) async {
+    final task = Task(name: newTitle, tTime: time);
     DatabaseProvider.db.insert(task).then((newTask) {
       tasks.add(newTask);
       notifyListeners();
     });
+    await showNotification(time);
   }
 
   Future<void> getDataFromDatabase() async {
@@ -45,16 +38,18 @@ class TaskData extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateTask(int id, String newTname, int index) {
-    DatabaseProvider.db.updatetname(id, newTname).then((value) {
-      updatelist(newTname, index);
+  Future<void> updateTask(
+      int id, String newTname, int index, String date) async {
+    DatabaseProvider.db.updatetname(id, newTname, date).then((value) {
+      updatelist(newTname, index, date);
       notifyListeners();
     });
-    // getDataFromDatabase();
+    await showNotification(date);
   }
 
-  void updatelist(String newtname, int index) {
+  void updatelist(String newtname, int index, String date) {
     tasks[index].name = newtname;
+    tasks[index].tTime = date;
   }
 
   void deleteTask(Task task) {
@@ -66,79 +61,108 @@ class TaskData extends ChangeNotifier {
 
   TimeOfDay selectedTime = TimeOfDay.now();
   int? hour, minute, second;
-  String? dateTime;
-  TimeOfDay? picked;
+  TimeOfDay? pickedtime;
+  DateTime? pickeddate;
   DateTime current = DateTime.now();
-  DateTime? newdate;
+  String? newdate;
 
-  Future<Null> selectTime(BuildContext context) async {
-    picked = await showTimePicker(
-      context: context,
-      initialTime: selectedTime,
-    );
-    if (picked != null) {
-      selectedTime = picked!;
-      hour = picked!.hour;
-      minute = picked!.minute;
-      newdate = DateTime(DateTime.now().year, DateTime.now().month,
-          DateTime.now().day, hour!, minute!);
-      second = current.difference(newdate!).inSeconds;
-      timeController.text = '${hour}:${minute}';
-    }
-  }
+  // void gettime() {
+  //   timeController = TextEditingController(
+  //       text: DateFormat.yMMMd().add_jm().format(DateTime.now()));
+  //   // DateFormat('y')
 
-  // Future<void> showNotification() async {
-  //   tz.initializeTimeZones();
-  //   const MethodChannel platform =
-  //       MethodChannel('dexterx.dev/flutter_local_notifications_example');
-  //   final String? alarmUri = await platform.invokeMethod<String>('getAlarmUri');
-  //   final UriAndroidNotificationSound uriSound =
-  //       UriAndroidNotificationSound(alarmUri!);
-
-  //   flutterLocalNotificationsPlugin.zonedSchedule(
-  //       0,
-  //       'scheduled title',
-  //       'scheduled body',
-  //       tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
-  //       NotificationDetails(
-  //           android: AndroidNotificationDetails(
-  //               'full screen channel id', 'full screen channel name',
-  //               channelDescription: 'full screen channel description',
-  //               sound: uriSound,
-  //               priority: Priority.high,
-  //               importance: Importance.high,
-  //               fullScreenIntent: true)),
-  //       androidAllowWhileIdle: true,
-  //       uiLocalNotificationDateInterpretation:
-  //           UILocalNotificationDateInterpretation.absoluteTime);
+  //   notifyListeners();
   // }
 
-  Future<void> zonedScheduleNotification() async {
+  String setTime() {
+    return newdate == null ? current.toString() : newdate.toString();
+  }
+
+  Future<Null> selectDate(BuildContext context) async {
+    DateTime? selectedDate = DateTime.now();
+    pickeddate = await showDatePicker(
+        context: context,
+        initialDate: selectedDate,
+        initialDatePickerMode: DatePickerMode.day,
+        firstDate: DateTime(2021),
+        lastDate: DateTime(2030));
+  }
+
+  Future<String> selectTime({required BuildContext context}) async {
+    pickedtime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (pickedtime != null) {
+      selectedTime = pickedtime!;
+      hour = pickedtime!.hour;
+      minute = pickedtime!.minute;
+      newdate = DateTime(pickeddate!.year, pickeddate!.month, pickeddate!.day,
+              pickedtime!.hour, pickedtime!.minute)
+          .toString();
+      notifyListeners();
+
+      // print(ttime.text);
+      return DateTime.parse(newdate!).toString();
+    }
+    return DateTime.now().toString();
+  }
+
+  Future<void> showNotification(String time) async {
+    print('notification done ' + time);
     tz.initializeTimeZones();
     const MethodChannel platform =
         MethodChannel('dexterx.dev/flutter_local_notifications_example');
     final String? alarmUri = await platform.invokeMethod<String>('getAlarmUri');
     final UriAndroidNotificationSound uriSound =
         UriAndroidNotificationSound(alarmUri!);
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-        0,
+
+    flutterLocalNotificationsPlugin.zonedSchedule(
+        int.parse(DateFormat('MMdHm').format(DateTime.parse(time))),
         'scheduled title',
         'scheduled body',
-        tz.TZDateTime.now(tz.local).add(const Duration(seconds: 3)),
+        tz.TZDateTime.parse(tz.local, time),
         NotificationDetails(
-          android: AndroidNotificationDetails(
-            'uri channel id',
-            'uri channel name',
-            channelDescription: 'uri channel description',
-            sound: uriSound,
-            priority: Priority.high,
-            importance: Importance.high,
-            fullScreenIntent: true,
-            styleInformation: const DefaultStyleInformation(true, true),
-          ),
-        ),
+            android: AndroidNotificationDetails(
+                'full screen channel id', 'full screen channel name',
+                channelDescription: 'full screen channel description',
+                sound: uriSound,
+                // priority: Priority.high,
+                // importance: Importance.high,
+                fullScreenIntent: true)),
         androidAllowWhileIdle: true,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime);
   }
+
+  // Future<void> zonedScheduleNotification(String time) async {
+  //   print('notification done ' + time);
+  //   tz.initializeTimeZones();
+  //   const MethodChannel platform =
+  //       MethodChannel('dexterx.dev/flutter_local_notifications_example');
+  //   final String? alarmUri = await platform.invokeMethod<String>('getAlarmUri');
+  //   final UriAndroidNotificationSound uriSound =
+  //       UriAndroidNotificationSound(alarmUri!);
+  //   await flutterLocalNotificationsPlugin.zonedSchedule(
+  //       0,
+  //       'scheduled title',
+  //       'scheduled body',
+  //       // tz.TZDateTime.parse(tz.local, time),
+  //       tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
+  //       NotificationDetails(
+  //         android: AndroidNotificationDetails(
+  //           'uri channel id',
+  //           'uri channel name',
+  //           channelDescription: 'uri channel description',
+  //           sound: uriSound,
+  //           priority: Priority.high,
+  //           importance: Importance.high,
+  //           fullScreenIntent: true,
+  //           styleInformation: const DefaultStyleInformation(true, true),
+  //         ),
+  //       ),
+  //       androidAllowWhileIdle: true,
+  //       uiLocalNotificationDateInterpretation:
+  //           UILocalNotificationDateInterpretation.absoluteTime);
+  // }
 }

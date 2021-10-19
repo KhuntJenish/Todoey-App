@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:todoapp/model/task_data.dart';
 import 'package:todoapp/screen/add_task_screen.dart';
@@ -14,7 +15,6 @@ class _TaskScreenState extends State<TaskScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    Provider.of<TaskData>(context).timeController.text = '';
     Provider.of<TaskData>(context, listen: false).getDataFromDatabase();
   }
 
@@ -22,19 +22,7 @@ class _TaskScreenState extends State<TaskScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.lightBlue,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.lightBlue,
-        onPressed: () async {
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            context: context,
-            builder: (context) => Wrap(children: [
-              AddTaskScreen(),
-            ]),
-          );
-        },
-        child: Icon(Icons.add),
-      ),
+      floatingActionButton: AddTaskScreen(),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -55,12 +43,18 @@ class _TaskScreenState extends State<TaskScreen> {
                 SizedBox(
                   height: 10,
                 ),
-                Text(
-                  "Todoey",
-                  style: TextStyle(
-                    fontSize: 50,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                InkWell(
+                  onTap: () {
+                    print(DateFormat.yMMMd().add_jm().format(DateTime.now()));
+                    print(DateFormat('yMMdhm').format(DateTime.now()));
+                  },
+                  child: Text(
+                    "Todoey",
+                    style: TextStyle(
+                      fontSize: 50,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
                 Text(
